@@ -1,43 +1,40 @@
 from Bio import SeqIO
 import pandas as pd
-import numpy as np
 import re
 from Bio.Seq import Seq
 
 
 def mut_start_stop_codon(guide):
-    stop_codon=['taa','tag','tga']
-    start_codon='atg'
-    pos = {}
-    for seq in stop_codon:
-     pos[seq] = [m.start() for m in re.finditer(seq,guide)]
+    if guide=='empty':
+        return 'empty'
+    else:
+        stop_codon=['taa','tag','tga']
+        start_codon='atg'
+        pos = {}
+        for seq in stop_codon:
+         pos[seq] = [m.start() for m in re.finditer(seq,guide)]
 
-    element=list(guide)
-    for seq in stop_codon:
-        for index in pos[seq]:
-            if (index % 3 == 0):
-                if seq!='taa':
-                    element[index:index + 3] = ['t','g','g']
-                else:
-                    element[index:index + 3] = ['t', 'a', 'c']
+        element=list(guide)
+        for seq in stop_codon:
+            for index in pos[seq]:
+                if (index % 3 == 0):
+                    if seq!='taa':
+                        element[index:index + 3] = ['t','g','g']
+                    else:
+                        element[index:index + 3] = ['t', 'a', 'c']
 
-    stop_pos=guide.find('A')
-    atg_pos=[m.start() for m in re.finditer(start_codon,guide)]
-    for index in atg_pos:
-        if (index % 3 == 0 and index>stop_pos):
-            element[index:index + 3] = ['a','g','g']
-    element=''.join([str(item) for item in element])
-    return element
+        stop_pos=guide.find('A')
+        atg_pos=[m.start() for m in re.finditer(start_codon,guide)]
+        for index in atg_pos:
+            if (index % 3 == 0 and index>stop_pos):
+                element[index:index + 3] = ['a','g','g']
+        element=''.join([str(item) for item in element])
+        return element
 
-ms2_seq1='agacatgaggatcacccatgt'
-ms2_seq2='aagggtggaggaacaccccaccct'
-ms2_seq3='acagaagcaccatcagggcttctg'
-ms2_seq4='gtgcgtggagcatcagcccacgca'
-ms2_seq5='tcgacgcaggaccaccgcgtc'
-ms2_seq6='agcgcagaggaacaccctgcg'
-ms2_seq7='acgggtggaggatcaccccacccg'
-ms2_seq8='tcgcgaagagcatcagccttcgcg'
-
+ms2_seq1='acagaagcaccatcagggcttctg'
+ms2_seq2='atgacgcaggaccaccgcgtc'
+ms2_seq3='agacatgaggatcacccatgt'
+ms2_seq4='aagggtggaggaacaccccaccct'
 
 def make_sensor(Genename,length):
     filename='Endo DNA Files/{}.gb'.format(Genename)
@@ -93,7 +90,7 @@ def make_sensor(Genename,length):
 
     res=pd.DataFrame(name_list,columns=['Name'])
     res=pd.concat([res,df_new],axis=1)
-    outputname="{}_ms2_sensor_guide.csv".format(Genename)
+    outputname="Endo DNA Files/{}_ms2_sensor_guide.csv".format(Genename)
     res.to_csv(outputname,index=None)
     return res
 
